@@ -1,3 +1,5 @@
 bundle.js
-views
 package*
+client/assets
+index.html
+

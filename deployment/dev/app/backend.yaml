@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-boilerplate-backend
+  labels:
+    app: node-boilerplate-backend
+spec:
+  selector:
+    app: node-boilerplate-backend
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: node-boilerplate-backend
+  name: node-boilerplate-backend
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  strategy:
+    type: Recreate
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: node-boilerplate-backend
+  template:
+    metadata:
+      labels:
+        app: node-boilerplate-backend
+    spec:
+      containers:
+      - image: nightmanager/node-boilerplate-backend:0.0.1
+        imagePullPolicy: Always
+        name: node-boilerplate-backend
+        env:
+        - name: LOG_LEVEL
+          value: debug
+        - name: NODE_BOILERPLATE_SERVER_HOST
+          value: 0.0.0.0
+        - name: NODE_BOILERPLATE_SERVER_PORT
+          value: "8080"
+        - name: NODE_BOILERPLATE_CLIENT_ID
+          value: "node-boilerplate"
+        - name: NODE_BOILERPLATE_CLIENT_SECRET 
+          valueFrom:
+           secretKeyRef:
+             name: node-boilerplate-backend
+             key: NODE_BOILERPLATE_CLIENT_SECRET
+        - name: NODE_BOILERPLATE_CALLBACK_URL
+          value: http://node-boilerplate.internal/oidc-callback
+        ports:
+        - name: http
+          containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /app-info
+            port: 8080
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "100m"
+          limits:
+            memory: "2048Mi"
+            cpu: "500m"
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: secrets-volume
+          
+
