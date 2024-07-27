@@ -63,6 +63,10 @@ resource "aws_lb_target_group" "private" {
   port     = 8080
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.this.id
+	health_check {
+    matcher = "200"
+    path = "/app-info"
+  }
 }
 
 resource "aws_lb_listener" "private" {

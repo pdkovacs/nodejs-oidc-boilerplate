@@ -38,9 +38,14 @@ resource "aws_iam_role_policy" "task_exec_get_client_secret" {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Effect": "Allow",
-      "Action": "secretsmanager:GetSecretValue",
-      "Resource": "${data.aws_secretsmanager_secret_version.client_secret_version.arn}"
+			"Effect": "Allow",
+			"Action": [
+				"ssm:GetParametersByPath",
+				"ssm:GetParameters",
+				"ssm:GetParameter",
+				"ssm:GetParameterHistory"
+			],
+			"Resource": "arn:aws:ssm:eu-west-1:${data.aws_caller_identity.current.account_id}:parameter/*"
     }
   ]
 }
